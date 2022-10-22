@@ -150,7 +150,7 @@ class CaptioningRNN:
 
         h0,affine_cache=affine_forward(features,W_proj,b_proj)
         x,embed_cache=word_embedding_forward(captions_in,W_embed)
-        
+
         h,rnn_cache=rnn_forward(x,h0,Wx,Wh,b)
         hout,tem_affine_cache=temporal_affine_forward(h,W_vocab,b_vocab)
         loss,dh=temporal_softmax_loss(hout,captions_out,mask)

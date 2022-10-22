@@ -38,7 +38,13 @@ class PositionalEncoding(nn.Module):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        for i in range(max_len):
+            for j in range(embed_dim):
+                if j%2==0 :
+                    pe[0,i,j]=math.sin(i*pow(10000,-i/embed_dim))
+                else:
+                    pe[0,i,j]=math.cos(i*pow(10000,-(j-1)/embed_dim))
+
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
@@ -164,8 +170,29 @@ class MultiHeadAttention(nn.Module):
         #     function masked_fill may come in handy.                              #
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        H=self.n_head
+        D=self.head_dim
 
-        pass
+        q=self.query(query).reshape((N,S,H,D))
+        k=self.key(key).reshape((N,T,H,D))
+        v=self.value(value).reshape((N,T,H,D))
+
+        q=q.transpose(1,2)#(N,H,S,D)
+        k=k.permute(0,2,1,3)#(N,H,D,T)
+        v=v.permute(0,2,1,3)
+
+        #print(q.shape,k.shape,v.shape)
+
+        e=torch.matmul(q,k.transpose(2,3))/torch.sqrt(torch.tensor([D]))#(N,H,S,T)
+
+        if attn_mask is not None:
+          e=e.masked_fill(attn_mask==0,-float('inf'))
+
+        a=torch.softmax(e,dim=-1)
+        a=self.attn_drop(a)
+
+        y=torch.matmul(a,v)
+        output=self.proj(y.transpose(1,2).reshape(N,S,E))
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
