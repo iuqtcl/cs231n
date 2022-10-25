@@ -30,7 +30,8 @@ def sample_noise(batch_size, dim, seed=None):
 
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    noise=torch.rand((batch_size,dim))*2-1
+    return noise
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -51,7 +52,13 @@ def discriminator(seed=None):
     ##############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    model=nn.Sequential(Flatten(),
+                        nn.Linear(784,256),
+                        nn.LeakyReLU(0.01),
+                        nn.Linear(256,256),
+                        nn.LeakyReLU(0.01),
+                        nn.Linear(256,1)
+                        )
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ##############################################################################
@@ -76,7 +83,13 @@ def generator(noise_dim=NOISE_DIM, seed=None):
     ##############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    model=nn.Sequential(nn.Linear(noise_dim,1024),
+                        nn.ReLU(),
+                        nn.Linear(1024,1024),
+                        nn.ReLU(),
+                        nn.Linear(1024,784),
+                        nn.Tanh()
+                        )
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ##############################################################################
@@ -96,7 +109,7 @@ def bce_loss(input, target):
     - A PyTorch Tensor containing the mean BCE loss over the minibatch of input data.
     """
     bce = nn.BCEWithLogitsLoss()
-    return bce(input.squeeze(), target)
+    return bce(input.squeeze(), target.squeeze())
 
 def discriminator_loss(logits_real, logits_fake):
     """
@@ -111,8 +124,14 @@ def discriminator_loss(logits_real, logits_fake):
     """
     loss = None
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+ 
+    label_real=torch.ones(logits_real.shape).type(dtype)
+    label_fake=torch.zeros(logits_real.shape).type(dtype)
+    loss=bce_loss(label_real,label_fake)
+    loss=bce_loss(logits_real,label_real)+bce_loss(logits_fake,label_fake)
+    #print(loss.shape)
 
-    pass
+    
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     return loss
@@ -130,7 +149,9 @@ def generator_loss(logits_fake):
     loss = None
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    loss=bce_loss(logits_fake,torch.ones(logits_fake.shape).type(dtype))
+
+
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     return loss
@@ -149,7 +170,7 @@ def get_optimizer(model):
     optimizer = None
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    optimizer=optim.Adam(model,betas=[0.5,0.999],lr=1e-3)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     return optimizer
