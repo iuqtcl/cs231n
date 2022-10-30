@@ -8,7 +8,6 @@ google.colab不必安装，可以手动注释掉每个.ipynb的第一个代码�
 
 数据集下载：在 cs231n/datasets 下用编辑器打开.sh文件，根据其中链接手动下载到文件夹下并解压。
 
-assignment3 Self_Supervised_Learning.ipynb中所有训练块若无法正常训练，可尝试将调用的所有DataLoader的 "num_workers" 参数置为默认值。
 
 ### 参考
 
